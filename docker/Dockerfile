@@ -4,8 +4,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN groupadd --system user && \
     useradd --system --gid user --create-home user && \
-    mkdir -m 755 -p /app && \
-    chown user:user /app
+    mkdir -m 777 -p /app && \
+    chown -R user:user /app
 
 WORKDIR /app
 
@@ -18,10 +18,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_NO_DEV=1
 
 COPY --chown=user:user --chmod=700 src /app/src
-COPY --chown=user:user --chmod=700 pyproject.toml uv.lock /app/
+COPY --chown=user:user --chmod=500 pyproject.toml uv.lock /app/
+
+RUN mkdir -p /app/src/database && \
+    chmod 777 -R /app/src/database
 
 RUN uv sync --locked
 
+RUN uv run src/manage.py collectstatic --noinput || true
+
 EXPOSE 8000
 
-CMD ["uv", "run", "gunicorn", "estude.wsgi:application", "--bind", "0.0.0.0:8000", "--chdir", "src"]
+CMD ["uv", "run", "gunicorn", "estude.wsgi", "--bind", "0.0.0.0:8000", "--chdir", "src"]

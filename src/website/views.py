@@ -36,7 +36,6 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Seja bem-vindo novamente, {username}!')
                 next_url = request.GET.get('next', 'home')
                 return redirect(next_url)
             else:
