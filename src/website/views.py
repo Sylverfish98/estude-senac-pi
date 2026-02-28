@@ -14,10 +14,10 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
+            messages.success(request, f'Conta criada para {username}! Agora você pode fazer login.')
             return redirect('login')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = UserCreationForm()
     
@@ -36,20 +36,20 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {username}!')
+                messages.success(request, f'Seja bem-vindo novamente, {username}!')
                 next_url = request.GET.get('next', 'home')
                 return redirect(next_url)
             else:
-                messages.error(request, 'Invalid username or password.')
+                messages.error(request, 'Usuário ou senha inválido..')
         else:
-            messages.error(request, 'Please provide both username and password.')
+            messages.error(request, 'Por favor, preencha todos os campos.')
     
     return render(request, 'login.html')
 
 
 def logout_view(request):
     logout(request)
-    messages.info(request, 'You have been logged out successfully.')
+    messages.info(request, 'Você saiu do sistema.')
     return redirect('login')
 
 

@@ -117,6 +117,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 # Authentication settings
 LOGIN_URL = '/login/'  # Where to redirect if login required
 LOGIN_REDIRECT_URL = '/'  # Where to redirect after successful login
