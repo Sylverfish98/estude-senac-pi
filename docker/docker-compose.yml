@@ -1,0 +1,8 @@
+services:
+  estude-web-application:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: estude-app
+    ports:
+      - "8000:8000"
