@@ -5,16 +5,9 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: estude-app
-    # Remove ports mapping - Nginx will handle external access
     volumes:
       - estude-db:/app/src/database
-      - staticfiles:/app/src/staticfiles  # Shared volume for static files
-    environment:
-      - PYTHONUNBUFFERED=1
-    # Override command to ensure static files are collected on startup
-#    command: >
-#      sh -c "uv run python manage.py collectstatic --noinput &&
-#             uv run gunicorn estude.wsgi:application --bind 0.0.0.0:8000 --chdir src"
+      - staticfiles:/app/src/staticfiles
     networks:
       - estude-network
 
@@ -22,15 +15,14 @@ services:
     image: nginx:alpine
     container_name: estude-nginx
     ports:
-      - "8000:80"  # Map host port 8000 to container port 80
+      - "8000:80"
     volumes:
-      - staticfiles:/app/staticfiles:ro  # Read-only access to static files
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro  # Nginx config
+      - staticfiles:/app/staticfiles:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - estude-web-application
     networks:
       - estude-network
-    restart: unless-stopped
 
 volumes:
   estude-db:
