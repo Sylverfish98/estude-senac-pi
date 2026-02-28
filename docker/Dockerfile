@@ -4,7 +4,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN groupadd --system user && \
     useradd --system --gid user --create-home user && \
-    mkdir -m 700 -p /app && \
+    mkdir -m 755 -p /app && \
     chown user:user /app
 
 WORKDIR /app
