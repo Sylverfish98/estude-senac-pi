@@ -7,17 +7,17 @@ services:
     container_name: estude-app
     volumes:
       - estude-db:/app/src/database
-      - staticfiles:/app/src/staticfiles
     networks:
       - estude-network
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.nginx
     container_name: estude-nginx
     ports:
       - "8000:80"
     volumes:
-      - staticfiles:/app/staticfiles:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - estude-web-application
@@ -27,8 +27,6 @@ services:
 volumes:
   estude-db:
     name: "estude-db"
-  staticfiles:
-    name: "estude-staticfiles"
 
 networks:
   estude-network:

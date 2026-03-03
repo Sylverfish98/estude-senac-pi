@@ -1,15 +1,10 @@
-FROM python:3.13-slim-trixie
+FROM python:3.13-slim-trixie as builder
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN groupadd --system user && \
-    useradd --system --gid user --create-home user && \
-    mkdir -m 777 -p /app /app/src /app/src/database /app/.venv && \
-    chown -R user:user /app
+RUN mkdir -m 777 -p /app /app/src /app/src/database /app/.venv
 
 WORKDIR /app
-
-USER user
 
 # Set environment variables to prevent Python from writing .pyc files, ensure that output is not buffered,
 # and to disable UV's development mode
@@ -22,10 +17,14 @@ COPY --chown=user:user --chmod=777 pyproject.toml uv.lock /app/
 
 RUN uv sync --locked && \
     uv run src/manage.py collectstatic --noinput || true && \
-    chmod -R 500 /app && \
-    chmod -R 700 /app/src/database && \
     chmod -R 555 /app/src/staticfiles
 
-EXPOSE 8000
+FROM nginx:stable-alpine
 
-CMD ["uv", "run", "gunicorn", "estude.wsgi:application", "--bind", "0.0.0.0:8000", "--chdir", "src"]
+COPY --from=builder /app/src/staticfiles /app/staticfiles
+
+COPY --chmod=444 docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
