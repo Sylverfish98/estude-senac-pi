@@ -1,4 +1,4 @@
-FROM python:3.13-slim-trixie as builder
+FROM python:3.13-slim-trixie AS build
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -21,7 +21,7 @@ RUN uv sync --locked && \
 
 FROM nginx:stable-alpine
 
-COPY --from=builder /app/src/staticfiles /app/staticfiles
+COPY --from=build /app/src/staticfiles /app/staticfiles
 
 COPY --chmod=444 docker/nginx.conf /etc/nginx/conf.d/default.conf
 

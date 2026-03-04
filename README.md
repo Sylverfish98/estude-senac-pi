@@ -1,18 +1,9 @@
 ## Sobre o projeto
-Estude! é uma aplicação feita em Django que permite o usuário gerenciar seu cronograma de estudos usando uma interface simples e intuitiva.
+Estude! é um website feito para facilitar a gerência de cronogramas de estudos.
 
 ## Rodando o Projeto
-### Subindo Servidor de Produção com o Docker Compose
-O [Docker](https://www.docker.com/resources/what-container/) é uma aplicação que encapsula o software e suas dependências em um container, que pode ser executado como um só processo em qualquer sistema. Caso o intuito seja apenas testar a aplicação recomenda-se usar esse método. 
-1. Instale o [Docker](https://www.docker.com/products/docker-desktop/).
-2. Depois de navegar para a raiz do projeto, suba o container:
-```bash
-docker compose -f docker/docker-compose.yml up
-```
-3. Abra o site em: [https://localhost:8000/login](https://localhost:8000/login)
-
 ### Subindo o Servidor de Desenvolvimento
-1. Instale o [Python](https://www.python.org/downloads/windows/)
+1. Instale o [Python](https://www.python.org/downloads/windows/), no instalador marque a opção 'Add python to path'. Após a instalação, reinicie seu computador.
 2. Instale o [uv](https://docs.astral.sh/uv/getting-started/installation/), esse programa substitui o pip e venv, facilitando o desenvolvimento:
 ```bash
 pip install uv
@@ -21,13 +12,18 @@ pip install uv
 ```bash
 uv sync
 ```
-4. Suba o servidor de desenvolvimento:
+4. Atualize as tabelas do banco de dados:
+```bash
+uv run src/manage.py migrate
+```
+5. Suba o servidor de desenvolvimento:
 ```bash
 uv run src/manage.py runserver
 ```
-5. Abra o site em: [https://localhost:8000/login](https://localhost:8000/login)
+6. Abra o site em: [https://localhost:8000/login](https://localhost:8000/login)
 
-## URLs disponíveis
+## Arquitetura do Projeto
+### URLs disponíveis
 
 | Página            | URL                              |
 |-------------------|----------------------------------|
@@ -39,23 +35,3 @@ uv run src/manage.py runserver
 | Editar matéria    | `/materias/<pk>/editar/`         |
 | Excluir matéria   | `/materias/<pk>/deletar/`        |
 
-### Para melhor visualização das telas de matérias
-1. Configurar urls.py do app, caso necessário.
-
-2. Implantação com Docker
-
-### Implantação com Docker será necessária para correta visualização das telas de matérias, temas e eventos
-
-3. Subir o projeto
-
-```bash
-docker compose build
-docker compose up
-```
-
-### Rodar migrations e criar superusuário
-
-```bash
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py createsuperuser
-```

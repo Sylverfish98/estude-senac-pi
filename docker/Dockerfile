@@ -21,6 +21,7 @@ COPY --chown=user:user --chmod=777 src /app/src
 COPY --chown=user:user --chmod=777 pyproject.toml uv.lock /app/
 
 RUN uv sync --locked && \
+    uv run src/manage.py migrate && \
     uv run src/manage.py collectstatic --noinput || true && \
     chmod -R 500 /app && \
     chmod -R 700 /app/src/database && \
