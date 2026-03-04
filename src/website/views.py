@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from .materia import Materia
+from .form_materia import MateriaForm
+
 
 
 def register(request):
@@ -55,3 +58,60 @@ def logout_view(request):
 @login_required
 def home(request):
     return render(request, 'home.html', {'user': request.user})
+
+
+def materia(request):
+    """Veja aqui as matérias que você já criou"""
+    materias = Materia.objects.filter(usuario=request.user)
+    return render(request, 'templates/materia.html', {'materias': materias})
+
+
+def materia_criar(request):
+    """Crie uma nova matéria"""
+    if request.method == 'POST':
+        form = MateriaForm(request.POST, request.FILES)
+        if form.is_valid():
+            materia = form.save(commit=False)
+            materia.usuario = request.user
+            materia.save()
+            messages.success(request, f'A matéria "{materia.nome}" foi criada com sucesso!')
+            return redirect('materia')
+    else:
+        form = MateriaForm()
+    return render(request, 'templates/materia_form.html', {
+        'form': form,
+        'titulo': 'Nova Matéria',
+        'btn_label': 'Criar Matéria',
+    })
+
+
+def materia_editar(request, pk):
+    """Escolha a matéria que pretende editar"""
+    materia = get_object_or_404(Materia, pk=pk, usuario=request.user)
+    if request.method == 'POST':
+        form = MateriaForm(request.POST, request.FILES, instance=materia)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'A matéria "{materia.nome}" foi atualizada!')
+            return redirect('materia')
+    else:
+        form = MateriaForm(instance=materia)
+    return render(request, 'templates/materia_form.html', {
+        'form': form,
+        'titulo': f'Editar: {materia.nome}',
+        'btn_label': 'Salvar Alterações',
+        'materia': materia,
+    })
+
+
+def materia_deletar(request, pk):
+    """Escolha a matéria que deseja remover"""
+    materia = get_object_or_404(Materia, pk=pk, usuario=request.user)
+    if request.method == 'POST':
+        nome = materia.nome
+        materia.delete()
+        messages.success(request, f'A matéria "{nome}" foi removida de suas tarefas com sucesso.')
+        return redirect('home')
+    return render(request, 'templates/materia_confirmar_delete.html', {
+        'materia': materia,
+    })
