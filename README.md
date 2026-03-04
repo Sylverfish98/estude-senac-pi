@@ -26,3 +26,36 @@ uv sync
 uv run src/manage.py runserver
 ```
 5. Abra o site em: [https://localhost:8000/login](https://localhost:8000/login)
+
+## URLs disponíveis
+
+| Página            | URL                              |
+|-------------------|----------------------------------|
+| Cadastro          | `/register/`                     |
+| Login             | `/login/`                        |
+| Logout            | `/logout/`                       |
+| Lista de matérias | `/materia/`                      |
+| Nova matéria      | `/materias/nova/`                |
+| Editar matéria    | `/materias/<pk>/editar/`         |
+| Excluir matéria   | `/materias/<pk>/deletar/`        |
+
+### Para melhor visualização das telas de matérias
+1. Configurar urls.py do app, caso necessário.
+
+2. Implantação com Docker
+
+### Implantação com Docker será necessária para correta visualização das telas de matérias, temas e eventos
+
+3. Subir o projeto
+
+```bash
+docker compose build
+docker compose up
+```
+
+### Rodar migrations e criar superusuário
+
+```bash
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+```
