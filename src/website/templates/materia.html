@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/materia.css' %}">
+    <title>Minhas Matérias - Estude!</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="{% url 'materia' %}" class="navbar-brand">Estude!</a>
+    <div class="navbar-right">
+        <span class="navbar-user">Olá, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="page-header">
+        <h1 class="page-title">Minhas Matérias</h1>
+        <a href="{% url 'materia_criar' %}" class="btn btn-primary">＋ Nova Matéria</a>
+    </div>
+
+    <div class="materias-grid">
+        {% if materias %}
+            {% for materia in materias %}
+            <div class="materia-card">
+                {% if materia.imagem %}
+                    <img src="{{ materia.imagem.url }}" alt="{{ materia.nome }}" class="materia-card-img">
+                {% else %}
+                    <div class="materia-card-placeholder" style="background-color: {{ materia.cor }}">
+                        {{ materia.nome|first|upper }}
+                    </div>
+                {% endif %}
+
+                <div class="materia-card-body">
+                    <div class="materia-card-nome">
+                        <span class="color-dot" style="background: {materia.cor}"></}span>
+                        {{ materia.nome }}
+                    </div>
+
+                    <div class="materia-card-actions">
+                        <a href="{% url 'materia_editar' materia.pk %}" class="btn btn-secondary btn-sm">
+                            ✏️ Editar
+                        </a>
+                        <a href="{% url 'materia_deletar' materia.pk %}" class="btn btn-sm btn-excluir">
+                            🗑️ Excluir
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📚</span>
+                <h2>Nenhuma matéria ainda</h2>
+                <p>Crie sua primeira matéria e comece a organizar seus estudos!</p>
+                <a href="{% url 'materia_criar' %}" class="btn btn-primary">
+                    ＋ Criar primeira matéria
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/materia.css' %}">
+    <title>Crie novas matérias - Estude!</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="{% url 'home' %}" class="navbar-brand">Estude!</a>
+    <div class="navbar-right">
+        <span class="navbar-user">Olá, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="back-link">← Voltar</a>
+
+    <div class="form-card">
+        <h1 class="form-title">{{ titulo }}</h1>
+
+        <div class="preview-bar" id="previewBar" style="background: #C8762B;"></div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Nome -->
+            <div class="form-group">
+                <label class="form-label" for="{{ form.nome.id_for_label }}">
+                    {{ form.nome.label }}
+                </label>
+                <input
+                    type="text"
+                    id="{{ form.nome.id_for_label }}"
+                    name="{{ form.nome.html_name }}"
+                    value="{{ form.nome.value|default:'' }}"
+                    class="form-input"
+                    placeholder="Ex: Matemática, Biologia..."
+                    {% if form.nome.field.required %}required{% endif %}
+                >
+                {% if form.nome.errors %}
+                    {% for error in form.nome.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Cor -->
+            <div class="form-group">
+                <div class="color-label-row">
+                    <label class="form-label" style="margin:0">{{ form.cor.label }}</label>
+                    <span class="color-name-display" id="colorName">Âmbar</span>
+                </div>
+                <div class="color-grid">
+                    {% for value, label in form.cor.field.choices %}
+                    <label class="color-option" title="{{ label }}">
+                        <input
+                            type="radio"
+                            name="{{ form.cor.html_name }}"
+                            value="{{ value }}"
+                            class="color-radio"
+                            {% if form.cor.value == value %}checked{% endif %}
+                            {% if not form.cor.value and value == '#C8762B' %}checked{% endif %}
+                            data-label="{{ label }}"
+                        >
+                        <span class="color-swatch" style="background: {{ value }};"></span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% if form.cor.errors %}
+                    {% for error in form.cor.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Imagem -->
+            <div class="form-group">
+                <label class="form-label" for="{{ form.imagem.id_for_label }}">
+                    {{ form.imagem.label }}
+                </label>
+                <input
+                    type="file"
+                    id="{{ form.imagem.id_for_label }}"
+                    name="{{ form.imagem.html_name }}"
+                    class="form-file"
+                    accept="image/*"
+                >
+                <div class="img-preview-wrap">
+                    {% if materia.imagem %}
+                        <img src="{{ materia.imagem.url }}" class="img-preview" id="imgPreview" style="display:block;">
+                    {% else %}
+                        <img class="img-preview" id="imgPreview">
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">{{ btn_label }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Cor → preview bar + nome
+    const radios = document.querySelectorAll('input.color-radio');
+    const bar = document.getElementById('previewBar');
+    const colorName = document.getElementById('colorName');
+
+    function updateColor(radio) {
+        if (radio.checked) {
+            bar.style.background = radio.value;
+            colorName.textContent = radio.dataset.label;
+        }
+    }
+
+    radios.forEach(r => {
+        r.addEventListener('change', () => updateColor(r));
+        if (r.checked) updateColor(r);
+    });
+
+    // Imagem → preview
+    const imgInput = document.getElementById('{{ form.imagem.id_for_label }}');
+    const imgPreview = document.getElementById('imgPreview');
+
+    if (imgInput) {
+        imgInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    imgPreview.src = e.target.result;
+                    imgPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

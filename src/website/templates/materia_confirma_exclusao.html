@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/materia.css' %}">
+    <title>Excluindo Matérias - Estude!</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="{% url 'home' %}" class="navbar-brand">Estude!</a>
+    <div class="navbar-right">
+        <span class="navbar-user">Olá, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="back-link">← Voltar</a>
+
+    <div class="delete-card">
+        <span class="delete-icon">🗑️</span>
+        <h1>Excluir Matéria</h1>
+
+        <p>Você tem certeza que deseja excluir a matéria:</p>
+
+        <div class="materia-preview">
+            <span class="materia-color-dot" style="background: {{ materia.cor }};"></span>
+            {{ materia.nome }}
+        </div>
+
+        <p class="warning-text">
+            ⚠️ Esta ação não pode ser desfeita. Todos os temas e eventos desta matéria também serão excluídos.
+        </p>
+
+        <form method="post" class="delete-actions">
+            {% csrf_token %}
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
