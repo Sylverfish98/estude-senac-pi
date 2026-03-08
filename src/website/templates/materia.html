@@ -14,57 +14,36 @@
 {% include 'components/navbar.html' %}
 
 <div class="page">
-    <div class="section-container">
-        {% include 'components/messages.html' %}
+    {% include 'components/messages.html' %}
 
+    <div class="section-container">
         <div class="page-header">
             <h1 class="page-title">Minhas Matérias</h1>
-            {% if materias %}
-                <a href="{% url 'materia_criar' %}" class="empty-button-primary">＋ Nova Matéria</a>{% endif %}
+            {% if materias %}<a href="{% url 'materia_criar' %}" class="empty-button-primary">＋ Nova Matéria</a>{% endif%}
         </div>
 
-
-            {% if materias %}
-                      <div class="materias-grid">
-                {% for materia in materias %}
-                    <div class="materia-card shadow">
-                        <div class="materia-card-placeholder" style="background-color: {{ materia.cor }}">
-                            {{ materia.nome|first|upper }}
-                        </div>
-
-                        <div class="materia-card-body">
-                            <div class="materia-card-nome">
-                                {{ materia.nome }}
-                            </div>
-                            <div class="materia-card-actions">
-                                <a href="{% url 'materia_editar' materia.pk %}"
-                                   class="empty-button-muted"
-                                >
-                                    <img src="/static/images/pencil.svg" alt="">
-                                </a>
-                                <a href="{% url 'materia_deletar' materia.pk %}"
-                                   class="empty-button-red"
-                                >
-                                    <img src="/static/images/trash-can.svg" alt="">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                            </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <span class="empty-icon">📚</span>
-                    <h2>Nenhuma matéria ainda</h2>
-                    <p>Crie sua primeira matéria e comece a organizar seus estudos!</p>
-                    <a href="{% url 'materia_criar' %}" class="btn btn-primary">
-                        ＋ Criar primeira matéria
-                    </a>
-                </div>
-            {% endif %}
-
+        {% if materias %}
+            {% include 'components/carrousel.html' %}
+        {% else %}
+            {% include 'components/subject_call_to_action.html' %}
+        {% endif %}
     </div>
+
+    {% if materias %}
+    <div class="section-container">
+        <div class="page-header">
+            <h1 class="page-title">Meu Cronograma</h1>
+        </div>
+        <div class="agenda-wrapper">
+            {% include 'components/calendar.html' %}
+
+            {% include 'components/agenda.html' %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+{% include 'components/topic_modal_req_subject.html' %}
 
 </body>
 </html>
