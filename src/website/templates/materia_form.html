@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+        <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/materia.css' %}">
     <title>Crie novas matérias - Estude!</title>
 </head>
@@ -14,22 +14,14 @@
 {% include 'components/navbar.html' %}
 
 <div class="page">
-    {% if messages %}
-    <ul class="messages">
-        {% for msg in messages %}
-        <li class="{{ msg.tags }}">{{ msg }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
     <a href="{% url 'home' %}" class="back-link">← Voltar</a>
 
-    <div class="form-card">
+    <div class="form-card shadow">
         <h1 class="form-title">{{ titulo }}</h1>
 
         <div class="preview-bar" id="previewBar" style="background: #C8762B;"></div>
 
-        <form method="post" enctype="multipart/form-data" novalidate>
+        <form method="post" novalidate>
             {% csrf_token %}
 
             <!-- Nome -->
@@ -71,7 +63,11 @@
                             {% if not form.cor.value and value == '#C8762B' %}checked{% endif %}
                             data-label="{{ label }}"
                         >
-                        <span class="color-swatch" style="background: {{ value }};"></span>
+                        {% if value == '__custom__' %}
+                            <span class="color-swatch custom-swatch">＋</span>
+                        {% else %}
+                            <span class="color-swatch" style="background: {{ value }};"></span>
+                        {% endif %}
                     </label>
                     {% endfor %}
                 </div>
@@ -82,45 +78,55 @@
                 {% endif %}
             </div>
 
-            <!-- Imagem -->
-            <div class="form-group">
-                <label class="form-label" for="{{ form.imagem.id_for_label }}">
-                    {{ form.imagem.label }}
-                </label>
-                <input
-                    type="file"
-                    id="{{ form.imagem.id_for_label }}"
-                    name="{{ form.imagem.html_name }}"
-                    class="form-file"
-                    accept="image/*"
-                >
-                <div class="img-preview-wrap">
-                    {% if materia.imagem %}
-                        <img src="{{ materia.imagem.url }}" class="img-preview" id="imgPreview" style="display:block;">
-                    {% else %}
-                        <img class="img-preview" id="imgPreview">
+            <!-- Cor personalizada -->
+            <details class="custom-color-details rounded" id="customColorDetails">
+                <summary class="custom-color-summary">Cor personalizada (hex)</summary>
+                <div class="custom-color-body">
+                    <label class="form-label" for="{{ form.cor_custom_hex.id_for_label }}">{{ form.cor_custom_hex.label }}</label>
+                    {{ form.cor_custom_hex }}
+                    <p class="muted" style="margin-top:0.35rem">Ex: <code>#A7C7E7</code></p>
+                    {% if form.cor_custom_hex.errors %}
+                        {% for error in form.cor_custom_hex.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
                     {% endif %}
                 </div>
-            </div>
+            </details>
 
             <div class="form-actions">
-                <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-primary">{{ btn_label }}</button>
+                <a href="{% url 'home' %}" class="btn btn-secondary shadow-sm">Cancelar</a>
+                <button type="submit" class="btn btn-primary shadow-sm">{{ btn_label }}</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Cor → preview bar + nome
     const radios = document.querySelectorAll('input.color-radio');
     const bar = document.getElementById('previewBar');
     const colorName = document.getElementById('colorName');
+    const customDetails = document.getElementById('customColorDetails');
+    const customHexInput = document.getElementById('{{ form.cor_custom_hex.id_for_label }}');
+
+    function isValidHex(v) {
+        return /^#([0-9a-fA-F]{6})$/.test((v || '').trim());
+    }
 
     function updateColor(radio) {
         if (radio.checked) {
-            bar.style.background = radio.value;
-            colorName.textContent = radio.dataset.label;
+            if (radio.value === '__custom__') {
+                customDetails.open = true;
+                colorName.textContent = 'Personalizada';
+                const v = (customHexInput?.value || '').trim();
+                if (isValidHex(v)) {
+                    bar.style.background = v;
+                } else {
+                    bar.style.background = '#EDEBE6';
+                }
+            } else {
+                bar.style.background = radio.value;
+                colorName.textContent = radio.dataset.label;
+            }
         }
     }
 
@@ -129,23 +135,30 @@
         if (r.checked) updateColor(r);
     });
 
-    // Imagem → preview
-    const imgInput = document.getElementById('{{ form.imagem.id_for_label }}');
-    const imgPreview = document.getElementById('imgPreview');
-
-    if (imgInput) {
-        imgInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    imgPreview.src = e.target.result;
-                    imgPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+    if (customHexInput) {
+        customHexInput.addEventListener('input', () => {
+            const customRadio = document.querySelector('input.color-radio[value="__custom__"]');
+            if (customRadio?.checked) {
+                updateColor(customRadio);
             }
         });
     }
+
+    (function initCustomFromValue() {
+        const selected = document.querySelector('input.color-radio:checked');
+        const selectedValue = selected?.value;
+        const presetValues = Array.from(document.querySelectorAll('input.color-radio')).map(r => r.value);
+        if (selectedValue && !presetValues.includes(selectedValue)) return;
+        const currentCor = '{{ form.cor.value|default_if_none:"" }}';
+        if (currentCor && isValidHex(currentCor) && !presetValues.includes(currentCor)) {
+            const customRadio = document.querySelector('input.color-radio[value="__custom__"]');
+            if (customRadio) {
+                customRadio.checked = true;
+                if (customHexInput) customHexInput.value = currentCor;
+                updateColor(customRadio);
+            }
+        }
+    })();
 </script>
 
 </body>
