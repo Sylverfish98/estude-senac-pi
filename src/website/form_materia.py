@@ -1,50 +1,70 @@
 from django import forms
+from .materia import Materia
+import re
 
-from .topic import Topic
+CORES_PREDEFINIDAS = [
+    ("#C8762B", "Âmbar"),
+    ("#A7C7E7", "Azul bebê"),
+    ("#B5EAD7", "Verde menta"),
+    ("#C7CEEA", "Lavanda"),
+    ("#FFD6A5", "Pêssego"),
+    ("#FFCAD4", "Rosa pastel"),
+    ("#F1E3D3", "Areia"),
+    ("#BEE3DB", "Verde água"),
+    ("#EAC4D5", "Rosa antigo"),
+    ("#D7E3FC", "Azul gelo"),
+    ("#FFF1BA", "Amarelo pastel"),
+    ("#E2F0CB", "Verde pastel"),
+]
 
 
-class TopicForm(forms.ModelForm):
+class MateriaForm(forms.ModelForm):
+    cor = forms.ChoiceField(
+        choices=[*CORES_PREDEFINIDAS, ("__custom__", "Personalizada")],
+        widget=forms.RadioSelect(attrs={'class': 'color-radio'}),
+        initial="#C8762B",
+        label='Cor'
+    )
+    cor_custom_hex = forms.CharField(
+        required=False,
+        label="Hex personalizado",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-input",
+                "placeholder": "#AABBCC",
+                "inputmode": "text",
+                "autocomplete": "off",
+            }
+        ),
+    )
+
     class Meta:
-        model = Topic
-        fields = ["materia", "nome", "link", "data_estudo", "index"]
+        model = Materia
+        fields = ["nome", "cor"]
         widgets = {
-            "materia": forms.Select(
-                attrs={
-                    "class": "form-input",
-                    "placeholder": "Selecione uma máteria",
-                    "autofocus": False,
-                }
-            ),
-            "nome": forms.TextInput(
-                attrs={
-                    "class": "form-input",
-                    "placeholder": "Ex: Regra de três, Funções...",
-                    "autofocus": True,
-                }
-            ),
-            "link": forms.URLInput(
-                attrs={
-                    "class": "form-input",
-                    "placeholder": "Link (opcional)",
-                }
-            ),
-            "data_estudo": forms.DateInput(
-                attrs={
-                    "class": "form-input",
-                    "type": "date",
-                }
-            ),
-            "index": forms.NumberInput(
-                attrs={
-                    "class": "form-input",
-                    "min": 0,
-                }
-            ),
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Ex: Matemática, Biologia...',
+                'class': 'form-input',
+                'autofocus': True,
+            }),
         }
         labels = {
-            "materia": "Matéria",
-            "nome": "Nome do tópico",
-            "link": "Link (opcional)",
-            "data_estudo": "Data para estudar (opcional)",
-            "index": "Ordem (index)",
+            'nome': 'Nome da Matéria',
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        cor = cleaned.get("cor")
+        custom = (cleaned.get("cor_custom_hex") or "").strip()
+
+        if cor == "__custom__":
+            if not custom:
+                self.add_error("cor_custom_hex", "Informe um hex para a cor personalizada.")
+                return cleaned
+
+            if not re.fullmatch(r"#([0-9a-fA-F]{6})", custom):
+                self.add_error("cor_custom_hex", "Hex inválido. Use o formato #RRGGBB.")
+                return cleaned
+
+            cleaned["cor"] = custom.upper()
+        return cleaned
