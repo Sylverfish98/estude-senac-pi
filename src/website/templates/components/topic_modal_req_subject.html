@@ -1,0 +1,65 @@
+<div id="addTopicModal" class="modal">
+    <div class="modal-content shadow">
+        <div class="modal-header">
+            <h2 class="page-title">Adicionar Tópico</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.materia.id_for_label }}">{{ form.materia.label }}</label>
+                    {{ form.materia }}
+                    {% for error in form.materia.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+                    {{ form.nome }}
+                    {% for error in form.nome.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.link.id_for_label }}">{{ form.link.label }}</label>
+                    {{ form.link }}
+                    {% for error in form.link.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary shadow-sm" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary shadow-sm">＋ Adicionar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('addTopicModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('addTopicModal').style.display = 'none';
+    }
+
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('addTopicModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+
+    {% if form.errors %}
+        document.addEventListener('DOMContentLoaded', function () {
+            openModal();
+        });
+    {% endif %}
+</script>
