@@ -20,7 +20,7 @@ uv run src/manage.py migrate
 ```bash
 uv run src/manage.py runserver
 ```
-6. Abra o site em: [https://localhost:8000/login](https://localhost:8000/login)
+6. Abra o site em: [http://localhost:8000/login](http://localhost:8000/login)
 
 ## Arquitetura do Projeto
 ### URLs disponíveis
