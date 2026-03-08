@@ -5,21 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/materia.css' %}">
     <title>Crie novas matérias - Estude!</title>
 </head>
 <body>
 
-<nav class="navbar">
-    <a href="{% url 'home' %}" class="navbar-brand">Estude!</a>
-    <div class="navbar-right">
-        <span class="navbar-user">Olá, {{ user.username }}</span>
-        <form method="post" action="{% url 'logout' %}" style="margin:0">
-            {% csrf_token %}
-            <button type="submit" class="btn-logout">Sair</button>
-        </form>
-    </div>
-</nav>
+{% include 'components/navbar.html' %}
 
 <div class="page">
     {% if messages %}

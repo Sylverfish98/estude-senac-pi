@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/materia.css' %}">
+    <title>Agenda - Estude!</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="{% url 'materia' %}" class="navbar-brand">Estude!</a>
+    <div class="navbar-right">
+        <a href="{% url 'agenda' %}" class="btn btn-secondary btn-sm shadow-sm">🗓️ Agenda</a>
+        <span class="navbar-user">Olá, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout rounded">Sair</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page">
+    {% if messages %}
+        <ul class="messages">
+            {% for msg in messages %}
+                <li class="{{ msg.tags }}">{{ msg }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a href="{% url 'materia' %}" class="back-link">← Voltar</a>
+
+    <div class="page-header" style="margin-bottom: 1rem;">
+        <h1 class="page-title">Agenda</h1>
+        <form method="get" class="date-picker">
+            <label class="form-label" style="margin:0" for="date">Data</label>
+            <input class="form-input" type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+            <button class="btn btn-primary btn-sm" type="submit">Ver</button>
+        </form>
+    </div>
+
+    {% if topics %}
+        {% regroup topics by materia as grouped %}
+        <div class="agenda-groups">
+            {% for group in grouped %}
+                <div class="card">
+                    <div class="card-title-row">
+                        <h2 class="card-title" style="margin:0">{{ group.grouper.nome }}</h2>
+                        <a class="btn btn-secondary btn-sm" href="{% url 'materia_detalhe' group.grouper.pk %}">📌 abrir</a>
+                    </div>
+
+                    <div class="topic-list">
+                        {% for topic in group.list %}
+                            <div class="topic-item {% if topic.is_completed %}topic-done{% endif %}">
+                                <div class="topic-main">
+                                    <form method="post" action="{% url 'topic_toggle_completed' topic.pk %}" style="margin:0">
+                                        {% csrf_token %}
+                                        <button class="topic-check" type="submit">
+                                            {% if topic.is_completed %}✅{% else %}⬜{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <div class="topic-text">
+                                        <div class="topic-title">
+                                            {{ topic.nome }}
+                                            {% if topic.link %}
+                                                <a class="topic-link" href="{{ topic.link }}" target="_blank" rel="noopener noreferrer">abrir</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="topic-meta">
+                                            <span class="muted">index {{ topic.index }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form method="post" action="{% url 'topic_deletar' topic.pk %}" style="margin:0">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-excluir" type="submit">🗑️</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state" style="padding: 2.5rem 1rem;">
+            <span class="empty-icon">🗓️</span>
+            <h2>Nenhum tópico agendado</h2>
+            <p>Escolha outra data ou adicione datas aos seus tópicos dentro de uma matéria.</p>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<div class="calendar-section">
+    <div class="calendar-container">
+        <div class="calendar-nav">
+            <button type="button" class="calendar-nav-btn" onclick="changeMonth(-1)">‹</button>
+            <span class="calendar-month-year" id="calendarMonthYear"></span>
+            <button type="button" class="calendar-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-weekdays">
+            <div class="calendar-weekday">Dom</div>
+            <div class="calendar-weekday">Seg</div>
+            <div class="calendar-weekday">Ter</div>
+            <div class="calendar-weekday">Qua</div>
+            <div class="calendar-weekday">Qui</div>
+            <div class="calendar-weekday">Sex</div>
+            <div class="calendar-weekday">Sáb</div>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+    </div>
+</div>
+<script>
+    const selectedDateStr = '{{ selected_date|date:"Y-m-d" }}';
+    let currentMonth = new Date(selectedDateStr + 'T00:00:00');
+
+    function initCalendar() {
+        updateCalendar();
+    }
+
+    function updateCalendar() {
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+
+
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        document.getElementById('calendarMonthYear').textContent =
+            `${monthNames[month]} ${year}`;
+
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+
+
+        const calendarDays = document.getElementById('calendarDays');
+        calendarDays.innerHTML = '';
+
+
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarDays.appendChild(emptyDay);
+        }
+
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = day;
+
+            const date = new Date(year, month, day);
+            date.setHours(0, 0, 0, 0);
+            const dateStr = year + '-' +
+                String(month + 1).padStart(2, '0') + '-' +
+                String(day).padStart(2, '0');
+
+
+            if (dateStr === selectedDateStr) {
+                dayElement.classList.add('selected');
+            }
+
+
+            if (date.getTime() === today.getTime()) {
+                dayElement.classList.add('today');
+            }
+
+
+            dayElement.addEventListener('click', function () {
+                selectDate(dateStr);
+            });
+
+            calendarDays.appendChild(dayElement);
+        }
+    }
+
+    function changeMonth(direction) {
+        currentMonth.setMonth(currentMonth.getMonth() + direction);
+        updateCalendar();
+    }
+
+    function selectDate(dateStr) {
+        document.getElementById('dateInput').value = dateStr;
+        document.getElementById('dateForm').submit();
+    }
+
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCalendar);
+    } else {
+        initCalendar();
+    }
+</script>

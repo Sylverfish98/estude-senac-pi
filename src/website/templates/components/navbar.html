@@ -1,0 +1,10 @@
+<nav class="navbar">
+    <a href="{% url 'materia' %}" class="navbar-brand"><img class="navbar-logo" src="/static/images/icon.svg" alt=""/>Estude!</a>
+    <div class="navbar-right">
+        <span class="navbar-user">Olá, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout rounded">Sair</button>
+        </form>
+    </div>
+</nav>

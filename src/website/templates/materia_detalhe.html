@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/materia.css' %}">
+    <title>{{ materia.nome }} - Tópicos</title>
+</head>
+<body>
+
+{% include 'components/navbar.html' %}
+
+<div class="page gap-sm">
+    <a href="{% url 'materia' %}" class="back-link">← Voltar</a>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for msg in messages %}
+                <li class="{{ msg.tags }}">{{ msg }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="page-header" style="margin-bottom: 1rem;">
+        <h1 class="page-title">Tópicos: {{ materia.nome }}</h1>
+        <div class="navbar-right">
+            <a href="{% url 'materia_editar' materia.pk %}"
+               class="empty-button-muted"
+            >
+                <img src="/static/images/pencil.svg" alt=""> Editar máteria
+            </a>
+            <a href="{% url 'materia_deletar' materia.pk %}"
+               class="empty-button-red"
+            >
+                <img src="/static/images/trash-can.svg" alt=""> Excluir máteria
+            </a>
+        </div>
+    </div>
+
+
+    <div class="card shadow">
+        <div class="topics-page-header">
+            <h2 class="card-title">Tópicos cadastrados</h2>
+            <button class="btn btn-primary shadow-sm" onclick="openModal()">＋ Adicionar Tópico</button>
+        </div>
+
+        {% if topics %}
+            <div class="topic-list">
+                {% for topic in topics %}
+                    <div class="topic-item {% if topic.is_completed %}topic-done{% endif %}">
+                        <div class="topic-main">
+                            <form method="post" action="{% url 'topic_toggle_completed' topic.pk %}" style="margin:0">
+                                {% csrf_token %}
+                                <button class="topic-check {% if topic.is_completed %}topic-checked{% endif %}"
+                                        type="submit"
+                                        title="Marcar como concluído / desfazer">
+                                </button>
+                            </form>
+
+                            <div class="topic-text">
+                                <div class="topic-title">
+                                    {{ topic.nome }}
+                                    {% if topic.link %}
+                                        <a class="topic-link" href="{{ topic.link }}" target="_blank"
+                                           rel="noopener noreferrer">abrir</a>
+                                    {% endif %}
+                                </div>
+                                <div class="topic-meta">
+                                    {% if topic.data_estudo %}
+                                        <span class="text-gray">📅 {{ topic.data_estudo|date:"d/m/Y" }}</span>
+                                    {% else %}
+                                        <span class="text-gray">Sem data</span>
+                                    {% endif %}
+                                    <span class="text-gray">• index {{ topic.index }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="post" action="{% url 'topic_deletar' topic.pk %}" style="margin:0">
+                            {% csrf_token %}
+                            <button class="empty-button-red"
+                                    type="submit"
+                            >
+                                <img src="/static/images/trash-can.svg" alt="">
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted" style="margin-top: 0.5rem;">Ainda não há tópicos nesta matéria. Clique em "Adicionar
+                Tópico" para começar.</p>
+        {% endif %}
+    </div>
+
+    <!-- Modal para adicionar tópico -->
+    <div id="addTopicModal" class="modal">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h2 class="page-title">Adicionar Tópico</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+                        {{ form.nome }}
+                        {% for error in form.nome.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.link.id_for_label }}">{{ form.link.label }}</label>
+                        {{ form.link }}
+                        {% for error in form.link.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"
+                                   for="{{ form.data_estudo.id_for_label }}">{{ form.data_estudo.label }}</label>
+                            {{ form.data_estudo }}
+                            {% for error in form.data_estudo.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.index.id_for_label }}">{{ form.index.label }}</label>
+                            {{ form.index }}
+                            {% for error in form.index.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary shadow-sm" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary shadow-sm">＋ Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('addTopicModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('addTopicModal').style.display = 'none';
+        }
+
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('addTopicModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+
+        {% if form.errors %}
+            document.addEventListener('DOMContentLoaded', function () {
+                openModal();
+            });
+        {% endif %}
+    </script>
+</div>
+
+</body>
+</html>
