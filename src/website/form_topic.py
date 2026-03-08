@@ -52,7 +52,7 @@ class TopicForm(forms.ModelForm):
 class TopicFormRequiresSubject(forms.ModelForm):
     class Meta:
         model = Topic
-        fields = ["materia", "nome", "link", "data_estudo"]
+        fields = ["materia", "nome", "link"]
         widgets = {
             "materia": forms.Select(
                 attrs={
@@ -94,4 +94,3 @@ class TopicFormRequiresSubject(forms.ModelForm):
             "data_estudo": "Data para estudar (opcional)",
             "index": "Ordem (index)",
         }
-
