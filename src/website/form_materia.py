@@ -1,38 +1,50 @@
 from django import forms
-from .materia import Materia
 
-CORES_PREDEFINIDAS = [
-    ('#C8762B', 'Âmbar'),
-    ("#1E5CCF", 'Azul'),
-    ("#AD68EE", 'Lilás'),
-    ("#43B268", 'Verde'),
-    ("#E22020", 'Vermelho'),
-]
+from .topic import Topic
 
 
-class MateriaForm(forms.ModelForm):
-    cor = forms.ChoiceField(
-        choices=CORES_PREDEFINIDAS,
-        widget=forms.RadioSelect(attrs={'class': 'color-radio'}),
-        initial='#C8762B',
-        label='Cor'
-    )
-
+class TopicForm(forms.ModelForm):
     class Meta:
-        model = Materia
-        fields = ['nome', 'imagem', 'cor']
+        model = Topic
+        fields = ["materia", "nome", "link", "data_estudo", "index"]
         widgets = {
-            'nome': forms.TextInput(attrs={
-                'placeholder': 'Ex: Matemática, Biologia...',
-                'class': 'form-input',
-                'autofocus': True,
-            }),
-            'imagem': forms.ClearableFileInput(attrs={
-                'class': 'form-file',
-                'accept': 'image/*',
-            }),
+            "materia": forms.Select(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Selecione uma máteria",
+                    "autofocus": False,
+                }
+            ),
+            "nome": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Ex: Regra de três, Funções...",
+                    "autofocus": True,
+                }
+            ),
+            "link": forms.URLInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Link (opcional)",
+                }
+            ),
+            "data_estudo": forms.DateInput(
+                attrs={
+                    "class": "form-input",
+                    "type": "date",
+                }
+            ),
+            "index": forms.NumberInput(
+                attrs={
+                    "class": "form-input",
+                    "min": 0,
+                }
+            ),
         }
         labels = {
-            'nome': 'Nome da Matéria',
-            'imagem': 'Imagem (opcional)',
+            "materia": "Matéria",
+            "nome": "Nome do tópico",
+            "link": "Link (opcional)",
+            "data_estudo": "Data para estudar (opcional)",
+            "index": "Ordem (index)",
         }
