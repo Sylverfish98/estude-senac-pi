@@ -77,7 +77,7 @@ def materia(request):
                 materia=topic.materia
             ).count()
 
-            topic.index = current_count - 1
+            topic.index = current_count
             topic.save()
             messages.success(request, "Tópico adicionado!")
             return redirect("materia")
@@ -199,7 +199,6 @@ def topic_toggle_completed(request, pk):
         topic.is_completed = not topic.is_completed
         topic.save(update_fields=["is_completed"])
 
-    # Redirecionar para a página de origem (agenda ou detalhe da matéria)
     next_url = request.POST.get("next")
     if next_url:
         return redirect(next_url)
