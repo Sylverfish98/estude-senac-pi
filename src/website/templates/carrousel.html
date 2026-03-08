@@ -1,0 +1,116 @@
+<div class="carousel-container">
+    <button type="button" class="carousel-btn carousel-btn-prev" onclick="scrollCarousel(-1)"
+            aria-label="Anterior">
+        ‹
+    </button>
+    <div class="carousel-wrapper">
+        <div class="materias-carousel" id="materiasCarousel">
+            {% for materia in materias %}
+                <div onclick="window.location.href = '{% url 'materia_detalhe' materia.pk %}';"
+                     class="materia-card-link">
+                    <div class="materia-card shadow">
+                        <div class="materia-card-placeholder" style="background-color: {{ materia.cor }}">
+                            {{ materia.nome|first|upper }}
+                        </div>
+
+                        <div class="materia-card-body">
+                            <div class="materia-card-nome">
+                                {{ materia.nome }}
+                            </div>
+                            <div class="materia-card-actions">
+                                <a href="{% url 'materia_editar' materia.pk %}"
+                                   class="empty-button-muted"
+                                >
+                                    <img src="/static/images/pencil.svg" alt="">
+                                </a>
+                                <a href="{% url 'materia_deletar' materia.pk %}"
+                                   class="empty-button-red"
+                                >
+                                    <img src="/static/images/trash-can.svg" alt="">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="button" class="carousel-btn carousel-btn-next" onclick="scrollCarousel(1)"
+            aria-label="Próximo">
+        ›
+    </button>
+</div>
+<script>
+    function getCarousel() {
+        return document.getElementById('materiasCarousel');
+    }
+
+    function scrollCarousel(direction) {
+        const carousel = getCarousel();
+        if (!carousel) return;
+
+        const firstItem = carousel.querySelector('.materia-card-link');
+
+        const scrollAmount =
+            (firstItem ? firstItem.getBoundingClientRect().width + 20 : Math.max(240, carousel.clientWidth * 0.85)) *
+            direction;
+
+        carousel.scrollBy({left: scrollAmount, behavior: 'smooth'});
+    }
+
+    function updateCarouselButtons() {
+        const carousel = getCarousel();
+        if (!carousel) return;
+
+        const prevBtn = document.querySelector('.carousel-btn-prev');
+        const nextBtn = document.querySelector('.carousel-btn-next');
+        if (!prevBtn || !nextBtn) return;
+
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        const atStart = carousel.scrollLeft <= 1;
+        const atEnd = carousel.scrollLeft >= maxScroll - 1;
+
+        prevBtn.disabled = atStart;
+        nextBtn.disabled = atEnd;
+
+
+        const container = carousel.closest('.carousel-container');
+        if (container) {
+            container.dataset.atStart = atStart ? '1' : '0';
+            container.dataset.atEnd = atEnd ? '1' : '0';
+        }
+    }
+
+    function initCarousel() {
+        const carousel = getCarousel();
+        if (!carousel) return;
+
+        updateCarouselButtons();
+        carousel.addEventListener('scroll', updateCarouselButtons);
+        window.addEventListener('resize', updateCarouselButtons);
+
+
+        carousel.addEventListener(
+            'wheel',
+            function (e) {
+
+                if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+                e.preventDefault();
+                carousel.scrollLeft += e.deltaY;
+            },
+            {passive: false}
+        );
+    }
+
+    window.addEventListener('load', () => {
+        initCarousel();
+
+        document.querySelector('.empty-button-muted').addEventListener('click', function (event) {
+            event.stopPropagation();
+            console.log('Edit button clicked');
+        });
+        document.querySelector('.empty-button-red').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+    });
+</script>
