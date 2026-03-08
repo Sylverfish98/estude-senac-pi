@@ -8,6 +8,7 @@ from .materia import Materia
 from .form_materia import MateriaForm
 from .topic import Topic
 from .form_topic import TopicForm
+from .form_topic import TopicFormRequiresSubject
 
 def register(request):
     if request.user.is_authenticated:
@@ -62,11 +63,10 @@ def home(request):
 
 @login_required
 def materia(request):
-    """Veja aqui as matérias que você já criou"""
     materias = Materia.objects.filter(usuario=request.user)
 
     if request.method == "POST":
-        form = TopicForm(request.POST)
+        form = TopicFormRequiresSubject(request.POST)
         if form.is_valid():
             topic: Topic = form.save(commit=False)
             topic.data_estudo = timezone.localdate()
@@ -81,7 +81,7 @@ def materia(request):
             return redirect("materia")
         messages.error(request, "Por favor, corrija os erros do tópico.")
     else:
-        form = TopicForm()
+        form = TopicFormRequiresSubject()
     
     date_str = request.GET.get("date")
     selected_date = None

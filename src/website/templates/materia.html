@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static '/images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/materia.css' %}">
     <title>Minhas Matérias - Estude!</title>
 </head>
@@ -39,13 +40,9 @@
         {% if materias %}
             {% for materia in materias %}
             <div class="materia-card">
-                {% if materia.imagem %}
-                    <img src="{{ materia.imagem.url }}" alt="{{ materia.nome }}" class="materia-card-img">
-                {% else %}
                     <div class="materia-card-placeholder" style="background-color: {{ materia.cor }}">
                         {{ materia.nome|first|upper }}
                     </div>
-                {% endif %}
 
                 <div class="materia-card-body">
                     <div class="materia-card-nome">
