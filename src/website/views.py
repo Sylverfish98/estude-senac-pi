@@ -10,10 +10,11 @@ from .topic import Topic
 from .form_topic import TopicForm
 from .form_topic import TopicFormRequiresSubject
 
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
-    
+
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -25,18 +26,18 @@ def register(request):
             messages.error(request, 'Por favor, corrija os erros abaixo.')
     else:
         form = UserCreationForm()
-    
+
     return render(request, 'registration.html', {'form': form})
 
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
-    
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
+
         if username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
@@ -47,7 +48,7 @@ def login_view(request):
                 messages.error(request, 'Usuário ou senha inválido..')
         else:
             messages.error(request, 'Por favor, preencha todos os campos.')
-    
+
     return render(request, 'login.html')
 
 
@@ -60,6 +61,7 @@ def logout_view(request):
 @login_required
 def home(request):
     return redirect('materia')
+
 
 @login_required
 def materia(request):
@@ -82,7 +84,7 @@ def materia(request):
         messages.error(request, "Por favor, corrija os erros do tópico.")
     else:
         form = TopicFormRequiresSubject()
-    
+
     date_str = request.GET.get("date")
     selected_date = None
     if date_str:
@@ -101,7 +103,7 @@ def materia(request):
     )
 
     selected_date_string = selected_date.strftime('%d/%m/%Y')
-    
+
     return render(request, 'materia.html', {
         'materias': materias,
         'selected_date': selected_date,
@@ -110,9 +112,9 @@ def materia(request):
         "form": form,
     })
 
+
 @login_required
 def materia_criar(request):
-    """Crie uma nova matéria"""
     if request.method == 'POST':
         form = MateriaForm(request.POST)
         if form.is_valid():
@@ -129,9 +131,9 @@ def materia_criar(request):
         'btn_label': 'Criar Matéria',
     })
 
+
 @login_required
 def materia_editar(request, pk):
-    """Escolha a matéria que pretende editar"""
     materia = get_object_or_404(Materia, pk=pk, usuario=request.user)
     if request.method == 'POST':
         form = MateriaForm(request.POST, instance=materia)
@@ -148,9 +150,9 @@ def materia_editar(request, pk):
         'materia': materia,
     })
 
+
 @login_required
 def materia_deletar(request, pk):
-    """Escolha a matéria que deseja remover"""
     materia = get_object_or_404(Materia, pk=pk, usuario=request.user)
     if request.method == 'POST':
         nome = materia.nome
@@ -192,12 +194,11 @@ def materia_detalhe(request, pk):
 
 @login_required
 def topic_toggle_completed(request, pk):
-    """Marca/desmarca um tópico como concluído."""
     topic = get_object_or_404(Topic, pk=pk, materia__usuario=request.user)
     if request.method == "POST":
         topic.is_completed = not topic.is_completed
         topic.save(update_fields=["is_completed"])
-    
+
     # Redirecionar para a página de origem (agenda ou detalhe da matéria)
     next_url = request.POST.get("next")
     if next_url:
@@ -207,7 +208,6 @@ def topic_toggle_completed(request, pk):
 
 @login_required
 def topic_deletar(request, pk):
-    """Remove um tópico."""
     topic = get_object_or_404(Topic, pk=pk, materia__usuario=request.user)
     materia_id = topic.materia_id
     if request.method == "POST":
@@ -218,7 +218,6 @@ def topic_deletar(request, pk):
 
 @login_required
 def agenda(request):
-    """Seleciona uma data e exibe tópicos agendados para estudar naquele dia."""
     date_str = request.GET.get("date")
     selected_date = None
     if date_str:

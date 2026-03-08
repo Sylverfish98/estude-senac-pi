@@ -11,16 +11,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <a href="{% url 'materia' %}" class="navbar-brand">Estude!</a>
-    <div class="navbar-right">
-        <span class="navbar-user">Olá, {{ user.username }}</span>
-        <form method="post" action="{% url 'logout' %}" style="margin:0">
-            {% csrf_token %}
-            <button type="submit" class="btn-logout rounded">Sair</button>
-        </form>
-    </div>
-</nav>
+{% include 'components/navbar.html' %}
 
 <div class="page gap-sm">
     <a href="{% url 'materia' %}" class="back-link">← Voltar</a>
