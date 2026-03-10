@@ -52,7 +52,7 @@ class TopicForm(forms.ModelForm):
 class TopicFormRequiresSubject(forms.ModelForm):
     class Meta:
         model = Topic
-        fields = ["materia", "nome", "link"]
+        fields = ["materia", "nome", "link", "data_estudo"]
         widgets = {
             "materia": forms.Select(
                 attrs={
@@ -74,10 +74,11 @@ class TopicFormRequiresSubject(forms.ModelForm):
                     "placeholder": "Link (opcional)",
                 }
             ),
-            "data_estudo": forms.DateInput(
+            "data_estudo": forms.HiddenInput(
                 attrs={
                     "class": "form-input",
-                    "type": "date",
+                    "type": "string",
+
                 }
             ),
             "index": forms.NumberInput(

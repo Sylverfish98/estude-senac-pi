@@ -6,6 +6,7 @@
         </div>
         <form method="post" novalidate>
             {% csrf_token %}
+            <input type="hidden" id="formDate" name="data_estudo" value="">
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label" for="{{ form.materia.id_for_label }}">{{ form.materia.label }}</label>

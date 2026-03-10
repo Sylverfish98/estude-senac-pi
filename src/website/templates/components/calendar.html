@@ -23,6 +23,7 @@
 
     function initCalendar() {
         updateCalendar();
+        document.getElementById('formDate').value = selectedDateStr;
     }
 
     function updateCalendar() {
@@ -80,6 +81,7 @@
 
             dayElement.addEventListener('click', function () {
                 selectDate(dateStr);
+                document.getElementById('formDate').value = selectedDateStr;
             });
 
             calendarDays.appendChild(dayElement);

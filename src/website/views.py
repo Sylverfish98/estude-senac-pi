@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.utils import timezone
 from .materia import Materia
 from .form_materia import MateriaForm
@@ -71,7 +72,6 @@ def materia(request):
         form = TopicFormRequiresSubject(request.POST)
         if form.is_valid():
             topic: Topic = form.save(commit=False)
-            topic.data_estudo = timezone.localdate()
 
             current_count = Topic.objects.filter(
                 materia=topic.materia
@@ -80,7 +80,9 @@ def materia(request):
             topic.index = current_count
             topic.save()
             messages.success(request, "Tópico adicionado!")
-            return redirect("materia")
+            date = topic.data_estudo or timezone.localdate()
+            url = reverse('materia') + f'?date={date}'
+            return redirect(url)
         messages.error(request, "Por favor, corrija os erros do tópico.")
     else:
         form = TopicFormRequiresSubject()
